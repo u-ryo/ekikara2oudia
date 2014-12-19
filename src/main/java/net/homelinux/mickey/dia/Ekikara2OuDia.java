@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
@@ -299,14 +301,24 @@ public class Ekikara2OuDia {
         }
         System.setProperty("file.encoding", "sjis");
         final Ekikara2OuDia ekikara2OuDia = new Ekikara2OuDia();
-        final List<Source> sources = new ArrayList<>();
+        final Map<String, Source> sourceMap =
+            new TreeMap<>(new Comparator<String>() {
+                    public int compare(String url0, String url1) {
+                        if (args[0].contains("/down")
+                            || (url0.contains("/down")
+                                && url1.contains("/down"))
+                            || (url0.contains("/up") && url1.contains("/up"))) {
+                            return url0.compareTo(url1);
+                        }
+                        return url1.compareTo(url0);
+                    }
+            });
         ExecutorService pool = Executors.newCachedThreadPool();
-        sources.add(ekikara2OuDia.fetchUrlAndParse(args[0]));
-        for (int i = 1; i < args.length; i++) {
-            final String url = args[i];
+        for (String arg : args) {
+            final String url = arg;
             pool.execute(new Runnable() {
                     public void run() {
-                        sources.add(ekikara2OuDia.fetchUrlAndParse(url));
+                        sourceMap.put(url, ekikara2OuDia.fetchUrlAndParse(url));
                     }
                 });
         }
@@ -316,8 +328,8 @@ public class Ekikara2OuDia {
         } catch (InterruptedException e) {
             System.err.println(e.toString());
         }
-        for (Source source : sources) {
-            ekikara2OuDia.process(source);
+        for (String url : sourceMap.keySet) {
+            ekikara2OuDia.process(sourceMap.get(url));
         }
         Formatter formatter =
             new OuDiaFormatter(ekikara2OuDia.title + " " + updateDate,
