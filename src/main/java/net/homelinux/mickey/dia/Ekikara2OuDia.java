@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -328,7 +329,7 @@ public class Ekikara2OuDia {
         } catch (InterruptedException e) {
             System.err.println(e.toString());
         }
-        for (String url : sourceMap.keySet) {
+        for (String url : sourceMap.keySet()) {
             ekikara2OuDia.process(sourceMap.get(url));
         }
         Formatter formatter =

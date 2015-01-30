@@ -78,4 +78,11 @@
       <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
     </pluginRepository>
   </pluginRepositories>
+  <distributionManagement>
+    <repository>
+      <id>deploy-repository</id>
+      <name>deployRepository</name>
+      <url>file://${env.HOME}/.m2/repository</url>
+    </repository>
+  </distributionManagement>
 </project>
