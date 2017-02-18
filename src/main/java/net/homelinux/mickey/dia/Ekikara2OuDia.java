@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,14 +26,14 @@ import net.htmlparser.jericho.StartTag;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-enum Direction { DOWN, UP };
-
 public class Ekikara2OuDia {
     private Log log = LogFactory.getLog(Ekikara2OuDia.class);
-    private List<Station> tmpStationList, allStations;
+    private List<Station> allStations;
     private List<Train> downTrains = new ArrayList<Train>(),
-        upTrains = new ArrayList<Train>(), tmpTrainList;
+        upTrains = new ArrayList<Train>();
     private String title, directionString;
+    private boolean hasAllStationsListed;
+    private boolean[] hasRuleChecked = new boolean[2];
     private static String updateDate;
     private static final int NUMBER_OF_ROWS_BEFORE_STATIONS = 5,
         TABLE_NUMBER_OF_TITLE = 3, TD_NUMBER_OF_TITLE = 2,
@@ -57,17 +58,15 @@ public class Ekikara2OuDia {
         Pattern.compile(".*(更新日:\\p{Digit}{2,4}/\\p{Digit}{1,2}/\\p{Digit}{1,2}).*");
 
     private Direction direction;
+    public Rule rule;
 
-    public Source fetchUrlAndParse(String url) {
+    public Source fetchUrlAndParse(String url)
+        throws SocketTimeoutException, IOException {
         Source source = null;
         try {
             source = new Source(new URL(url));
         } catch (MalformedURLException e) {
             String message = "Malformed URL: " + url;
-            log.error(message, e);
-            throw new RuntimeException(message, e);
-        } catch (IOException e) {
-            String message = "IOException: " + url;
             log.error(message, e);
             throw new RuntimeException(message, e);
         }
@@ -79,11 +78,10 @@ public class Ekikara2OuDia {
         if (allStations == null) {
             allStations = new ArrayList();
         }
-        tmpTrainList = new ArrayList<Train>();
-
         List<StartTag> tables = source.getAllStartTags("table");
         parseTitle((StartTag) tables.get(TABLE_NUMBER_OF_TITLE).getElement()
                    .getAllStartTags("td").get(TD_NUMBER_OF_TITLE));
+        setRuleByTitle();
         parseDirection((StartTag) tables.get(TABLE_NUMBER_OF_DIRECTION)
                        .getElement().getAllStartTags("div")
                        .get(DIV_NUMBER_OF_DIRECTION));
@@ -91,18 +89,18 @@ public class Ekikara2OuDia {
             .getElement().getAllStartTags("tr");
         parseDay(rows.get(TR_NUMBER_OF_DAY).getElement()
                  .getAllStartTags("td"));
-        parseTrainIdNumbers(rows.get(TR_NUMBER_OF_TRAIN_ID).getElement()
-                            .getAllStartTags("td"));
+        List<Train> tmpTrainList =
+            parseTrainIdNumbers(rows.get(TR_NUMBER_OF_TRAIN_ID).getElement()
+                                .getAllStartTags("td"));
         parseTrainNames(rows.get(TR_NUMBER_OF_TRAIN_NAME).getElement()
-                        .getAllStartTags("td"));
+                        .getAllStartTags("td"), tmpTrainList);
         parseTrainNotes(rows.get(TR_NUMBER_OF_TRAIN_NOTE).getElement()
-                        .getAllStartTags("td"));
+                        .getAllStartTags("td"), tmpTrainList);
         if (direction == Direction.UP) {
             revertProcessTables
                 (rows.size() - NUMBER_OF_ROWS_BEFORE_STATIONS - 1);
         }
         for (int i = 0; i < processTables.length; i++) {
-            tmpStationList = new ArrayList<Station>();
             int processTableNumber = Integer.parseInt(processTables[i])
                 + NUMBER_OF_ROWS_BEFORE_STATIONS;
             if (processTableNumber >= rows.size()) {
@@ -111,15 +109,24 @@ public class Ekikara2OuDia {
             List<StartTag> stationTimes =
                 rows.get(processTableNumber).getElement()
                 .getAllStartTags("td");
-            parseStations(stationTimes.remove(0).getElement()
-                          .getTextExtractor().toString().split(BLANK));
+            List<Station> tmpStationList =
+                parseStations(stationTimes.remove(0).getElement()
+                              .getTextExtractor().toString().split(BLANK));
             stationTimes.remove(0);
-            parseTrainTimes(stationTimes);
-            try {
+            parseTrainTimes(stationTimes, tmpTrainList, tmpStationList);
+            if (!hasAllStationsListed) {
                 allStations.addAll(tmpStationList);
-            } catch (UnsupportedOperationException e) { }
+            }
         }
-        allStations = Collections.unmodifiableList(allStations);
+        hasAllStationsListed = true;
+        if (direction == direction.DOWN) {
+            hasRuleChecked[0] = true;
+        } else if (direction == direction.UP) {
+            hasRuleChecked[1] = true;
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("allStations:" + allStations);
+        }
         parseUpdateDate(tables.get(TABLE_NUMBER_OF_UPDATE_DATE).getElement()
                         .getAllStartTags("td"));
 
@@ -133,6 +140,16 @@ public class Ekikara2OuDia {
         case UP:
             upTrains.addAll(tmpTrainList);
             break;
+        }
+    }
+
+    private void setRuleByTitle() {
+        if (!hasAllStationsListed) {
+            for (Rule r : Rule.values()) {
+                if (title.contains(r.getLineName())) {
+                    this.rule = r;
+                }
+            }
         }
     }
 
@@ -171,10 +188,11 @@ public class Ekikara2OuDia {
         }
     }
 
-    private void parseTrainIdNumbers(List<StartTag> trainIdNumberTags) {
+    private List<Train> parseTrainIdNumbers(List<StartTag> trainIdNumberTags) {
         if (log.isTraceEnabled()) {
             log.trace("trainIdNumberTags: " + trainIdNumberTags);
         }
+        List<Train> tmpTrainList = new ArrayList<Train>();
         for (int i = 1; i < trainIdNumberTags.size(); i++) {
             String trainIdNumber =
                 trainIdNumberTags.get(i).getElement()
@@ -184,9 +202,11 @@ public class Ekikara2OuDia {
         if (log.isTraceEnabled()) {
             log.trace("tmpTrainList: " + tmpTrainList);
         }
+        return tmpTrainList;
     }
 
-    private void parseTrainNames(List<StartTag> trainNameTags) {
+    private void parseTrainNames(List<StartTag> trainNameTags,
+                                 List<Train> tmpTrainList) {
         if (log.isTraceEnabled()) {
             log.trace("trainNameTags: " + trainNameTags);
         }
@@ -204,7 +224,8 @@ public class Ekikara2OuDia {
         }
     }
 
-    private void parseTrainNotes(List<StartTag> trainNoteTags) {
+    private void parseTrainNotes(List<StartTag> trainNoteTags,
+                                 List<Train> tmpTrainList) {
         trainNoteTags.remove(0);
         for (int i = 0; i < trainNoteTags.size(); i++) {
             String trainNote = trainNoteTags.get(i).getElement()
@@ -215,19 +236,51 @@ public class Ekikara2OuDia {
         }
     }
 
-    private void parseStations(String[] stations) {
+    private List<Station> parseStations(String[] stations) {
+        if (log.isDebugEnabled()) {
+            log.debug("stations[]:" + Arrays.toString(stations));
+        }
+        List<Station> tmpStationList = new ArrayList<Station>();
         for (int i = 0; i < stations.length; i++) {
             if (!SAME_MARK.equals(stations[i])) {
                 tmpStationList.add(new Station(stations[i]));
+                if (rule != null) {
+                    checkRules(stations[i], tmpStationList);
+                }
             } else {
                 Station station =
                     tmpStationList.get(tmpStationList.size() - 1);
                 station.setType(Station.Type.MAIN);
             }
         }
+        return tmpStationList;
     }
 
-    private void parseTrainTimes(List<StartTag> timesTags) {
+    private void checkRules(String stationName, List<Station> tmpStationList) {
+        if (direction == Direction.DOWN && !hasRuleChecked[0]
+            && rule.getIndex() == null) {
+            if (stationName.equals(rule.getStationName())) {
+                rule.setIndex(tmpStationList.size());
+                rule.setDirection(Direction.UP);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Rule:" + rule);
+            }
+        } else if (direction == Direction.UP && !hasRuleChecked[1]
+            && rule.getIndex() == null) {
+            if (stationName.equals(rule.getStationName())) {
+                rule.setIndex(tmpStationList.size() - 1);
+                rule.setDirection(Direction.DOWN);
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Rule:" + rule);
+            }
+        }
+    }
+
+    private void parseTrainTimes(List<StartTag> timesTags,
+                                 List<Train> tmpTrainList,
+                                 List<Station> tmpStationList) {
         for (int i = 0; i < tmpTrainList.size(); i++) {
             String timesTagString =
                 timesTags.get(i).getElement().toString();
@@ -266,7 +319,7 @@ public class Ekikara2OuDia {
     }
 
     private String nullCheck(String time) {
-        return NULL_STRING.equals(time) ? null : time;
+        return NULL_STRING.equals(time) ? null : time.trim();
     }
 
     private void parseUpdateDate(List<StartTag> tds) {
@@ -295,7 +348,39 @@ public class Ekikara2OuDia {
         processTables = tmp;
     }
 
-    public static void main(final String... args) throws IOException {
+    public void adjust() {
+        if (rule == null) {
+            return;
+        }
+        int index = allStations.size() - rule.getIndex();
+        List<Train> trains =
+            rule.getDirection() == Direction.UP ? upTrains : downTrains;
+        for (Train train : trains) {
+            List<String[]> time = train.getTime();
+            if (time.get(index - 1)[1] != null && time.get(index)[1] != null) {
+                time.add(index, new String[] { null, PASSAGE });
+            } else {
+                time.add(index, new String[2]);
+            }
+        }
+        if (rule.getDirection() == Direction.DOWN) {
+            allStations.add(index, new Station(rule.getStationName()));
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("rule:" + rule);
+        }
+        if (log.isTraceEnabled()) {
+            if (rule.getDirection() == Direction.UP) {
+                log.trace("upTrains:" + upTrains);
+            } else {
+                log.trace("downTrains:" + downTrains);
+                log.trace("allStations:" + allStations);
+            }
+        }
+    }
+
+    public static void main(final String... args)
+        throws SocketTimeoutException, IOException {
         if (args.length == 0) {
             System.out.println(USAGE);
             return;
@@ -319,7 +404,11 @@ public class Ekikara2OuDia {
             final String url = arg;
             pool.execute(new Runnable() {
                     public void run() {
-                        sourceMap.put(url, ekikara2OuDia.fetchUrlAndParse(url));
+                        try {
+                            sourceMap.put(url, ekikara2OuDia.fetchUrlAndParse(url));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
         }
@@ -332,12 +421,16 @@ public class Ekikara2OuDia {
         for (String url : sourceMap.keySet()) {
             ekikara2OuDia.process(sourceMap.get(url));
         }
+        if (ekikara2OuDia.rule != null) {
+            ekikara2OuDia.adjust();
+        }
         Formatter formatter =
             new OuDiaFormatter(ekikara2OuDia.title + " " + updateDate,
                                ekikara2OuDia.allStations,
                                ekikara2OuDia.downTrains,
                                ekikara2OuDia.upTrains,
-                               Arrays.toString(args) + " " + updateDate);
+                               Arrays.toString(args).replaceAll(",", "")
+                               + " " + updateDate);
         OutputStreamWriter writer = null;
         try {
             writer = new OutputStreamWriter(System.out, "Shift_JIS");

@@ -6,13 +6,13 @@ import java.util.List;
 class Train implements Comparable<Train> {
     enum Type { LOCAL, RAPID, SECTIONAL_RAPID, NEW_RAPID, SPECIAL_RAPID,
                 HOME_LINER, SEMI_EXPRESS, EXPRESS, LIMITED_EXPRESS,
-                SUPER_EXPRESS, BUS, RAPID_EXPRESS, RAPID_LIMITED_EXPRESS,
-                AIRPORT_EXPRESS
+                NOZOMI_SUPER_EXPRESS, HIKARI_SUPER_EXPRESS,
+                KODAMA_SUPER_EXPRESS, BUS, RAPID_EXPRESS,
+                RAPID_LIMITED_EXPRESS, AIRPORT_EXPRESS
     };
     private String name, number, idNumber, note;
     private List<String[]> time = new ArrayList<String[]>();
     private Type type = Type.LOCAL;
-    private int leastTime = -1, leastIndex = -1;
 
     Train(String idNumber) {
         this.idNumber = idNumber;
@@ -71,56 +71,48 @@ class Train implements Comparable<Train> {
         for (String[] t : time) {
             returnString.append("[" + t[0] + "/" + t[1] + "],");
         }
-        return returnString + "], leastTime: " + leastTime + ", leastIndex: "
-            + leastIndex;
-    }
-
-    private void calcLeastTime() {
-        if (leastIndex > -1) {
-            return;
-        }
-        int i = 0;
-        for (String[] times : time) {
-            org.apache.commons.logging.LogFactory.getLog(Train.class).trace(java.util.Arrays.toString(times)+":"+leastTime+":"+leastIndex);
-            if (times != null) {
-                if (times[0] != null && times[0].matches("\\d+")) {
-                    leastTime = Integer.parseInt(times[0]);
-                } else if (times[1] != null && times[1].matches("\\d+")) {
-                    leastTime = Integer.parseInt(times[1]);
-                }
-            }
-            if (leastTime >= 0) {
-                leastIndex = i;
-                if (leastTime < 300) {
-                    leastTime += 2400;
-                }
-                break;
-            }
-            i++;
-        }
+        return returnString + "]";
     }
 
     @Override
     public int compareTo(Train train) {
-        train.calcLeastTime();
-        calcLeastTime();
+        Integer[] departure = new Integer[2], arrival = new Integer[2];
         for (int i = 0; i < time.size(); i++) {
-            if (time.get(i) == null || train.time.get(i) == null) {
-                continue;
+            if (time.get(i)[0] != null && time.get(i)[0].matches("\\d+")) {
+                int t = Integer.parseInt(time.get(i)[0]);
+                t = t < 300 ? t + 2400 : t;
+                arrival[0] = t - i * 2;
             }
-            if (time.get(i)[0] != null && time.get(i)[0].matches("\\d+")
-                && train.time.get(i)[0] != null
-                && train.time.get(i)[0].matches("\\d+")) {
-                return compare(time.get(i)[0], train.time.get(i)[0]);
+            if (time.get(i)[1] != null && time.get(i)[1].matches("\\d+")) {
+                if (departure[0] == null) {
+                    int t = Integer.parseInt(time.get(i)[1]);
+                    t = t < 300 ? t + 2400 : t;
+                    departure[0] = t - i * 2;
+                }
             }
-            if (time.get(i)[1] != null && time.get(i)[1].matches("\\d+")
-                && train.time.get(i)[1] != null
-                && train.time.get(i)[1].matches("\\d+")) {
-                return compare(time.get(i)[1], train.time.get(i)[1]);
+            if (train.time.get(i)[0] != null && train.time.get(i)[0].matches("\\d+")) {
+                int t = Integer.parseInt(train.time.get(i)[0]);
+                t = t < 300 ? t + 2400 : t;
+                arrival[1] = t - i * 2;
+            }
+            if (train.time.get(i)[1] != null && train.time.get(i)[1].matches("\\d+")) {
+                if (departure[1] == null) {
+                    int t = Integer.parseInt(train.time.get(i)[1]);
+                    t = t < 300 ? t + 2400 : t;
+                    departure[1] = t - i * 2;
+                }
+            }
+            if (arrival[0] != null && departure[1] != null) {
+                return arrival[0] - departure[1];
+            }
+            if (arrival[1] != null && departure[0] != null) {
+                return departure[0] - arrival[1];
+            }
+            if (departure[0] != null && departure[1] != null) {
+                return departure[0] - departure[1];
             }
         }
-        return leastTime - train.leastTime != 0 ? leastTime - train.leastTime
-            : leastIndex - train.leastIndex;
+        return 0;
     }
 
     private int compare(String timeNum0, String timeNum1) {

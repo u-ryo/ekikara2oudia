@@ -14,141 +14,11 @@ public class OuDiaFormatter implements Formatter {
     private Log log = LogFactory.getLog(OuDiaFormatter.class);
 
     private static final String
-        LINE_SEPARATOR = "\r\n",//System.getProperty("line.separator"),
-        PASSAGE = "passage", VOID_MARK = "||",
+        LINE_SEPARATOR = "\r\n", PASSAGE = "passage", VOID_MARK = "||",
         REPLACE_RE = "^0|\\|\\||\\(|\\)", NULL_STRING = "",
         FILE_TYPE_APP_COMMENT = "FileTypeAppComment=Ekikara2OuDia",
         DIAGRAM_Y_AXIS_DEFAULT =
         "DiagramDgrYZahyouKyoriDefault=60" + LINE_SEPARATOR,
-
-        TRAIN_TYPES
-        = "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=普通" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00000000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00000000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "StopMarkDrawType=EStopMarkDrawType_Nothing" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=快速" + LINE_SEPARATOR
-        + "Ryakusyou=快速" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00FF0000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00FF0000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=区間快速" + LINE_SEPARATOR
-        + "Ryakusyou=区快" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00FF0000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00FF0000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=新快速" + LINE_SEPARATOR
-        + "Ryakusyou=新快" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00FF0000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00FF0000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=特別快速" + LINE_SEPARATOR
-        + "Ryakusyou=特快" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00FF0000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00FF0000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=ホームライナー" + LINE_SEPARATOR
-        + "Ryakusyou=ＨＬ" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00FF0000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00FF0000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=準急" + LINE_SEPARATOR
-        + "Ryakusyou=準急" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=11EE1100" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=11EE1100" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=急行" + LINE_SEPARATOR
-        + "Ryakusyou=急行" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=0000FF00" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=0000FF00" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=特急" + LINE_SEPARATOR
-        + "Ryakusyou=特急" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=000000FF" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=000000FF" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=新幹線" + LINE_SEPARATOR
-        + "Ryakusyou=幹" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00400000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00400000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=バス" + LINE_SEPARATOR
-        + "Ryakusyou=バス" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=00000000" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=00000000" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=0" + LINE_SEPARATOR
-        + "StopMarkDrawType=EStopMarkDrawType_Nothing" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=快速急行" + LINE_SEPARATOR
-        + "Ryakusyou=快急" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=0000FF00" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=0000FF00" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=快速特急" + LINE_SEPARATOR
-        + "Ryakusyou=快特" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=008080FF" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=008080FF" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR
-        + "Ressyasyubetsu." + LINE_SEPARATOR
-        + "Syubetsumei=エアポート急行" + LINE_SEPARATOR
-        + "Ryakusyou=エ急" + LINE_SEPARATOR
-        + "JikokuhyouMojiColor=0000FF00" + LINE_SEPARATOR
-        + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
-        + "DiagramSenColor=0000FF00" + LINE_SEPARATOR
-        + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
-        + "DiagramSenIsBold=1" + LINE_SEPARATOR
-        + "." + LINE_SEPARATOR,
 
         START_TIME_SETTINGS
         = "." + LINE_SEPARATOR + "." + LINE_SEPARATOR
@@ -176,7 +46,7 @@ public class OuDiaFormatter implements Formatter {
         + ".";
 
 
-    public OuDiaFormatter() { }
+    public OuDiaFormatter() {}
 
     public OuDiaFormatter(String title, List<Station> stations,
                           List<Train> downTrains, List<Train> upTrains,
@@ -219,13 +89,16 @@ public class OuDiaFormatter implements Formatter {
         output.append("Rosenmei=" + title + LINE_SEPARATOR);
         output = buildStations(stations, output);
 
-        output.append(TRAIN_TYPES);
+        // output.append(TRAIN_TYPES);
+        for (Train.Type type : Train.Type.values()) {
+            output.append(getTrainTypeString(type));
+        }
         output.append("Dia." + LINE_SEPARATOR);
         output.append("DiaName=" + title + LINE_SEPARATOR);
 
-        output = buildTrains(downTrains, output, Direction.DOWN);
+        output = buildTrains(downTrains, stations, output, Direction.DOWN);
         output.append("." + LINE_SEPARATOR);
-        output = buildTrains(upTrains, output, Direction.UP);
+        output = buildTrains(upTrains, stations, output, Direction.UP);
         output.append(START_TIME_SETTINGS);
         output.append(DIAGRAM_Y_AXIS_DEFAULT);
         output.append(comments);
@@ -263,7 +136,7 @@ public class OuDiaFormatter implements Formatter {
         return output;
     }
 
-    private StringBuilder buildTrains(Set<Train> trains,
+    private StringBuilder buildTrains(Set<Train> trains, List<Station> stations,
                                       StringBuilder output,
                                       Direction direction)  {
         if (direction == Direction.DOWN) {
@@ -345,5 +218,119 @@ public class OuDiaFormatter implements Formatter {
             output.append("." + LINE_SEPARATOR);
         }
         return output;
+    }
+
+    private String getTrainTypeString(Train.Type type) {
+        String typeName = "";
+        String simpleName = "";
+        String color = "";
+        int isBold = 0;
+        boolean stopMark = false;
+
+        switch (type) {
+        case LOCAL:
+            typeName = "普通";
+            color = "00000000";
+            stopMark = true;
+            break;
+        case RAPID:
+            typeName = "快速";
+            simpleName = "快速";
+            color = "00FF0000";
+            break;
+        case SECTIONAL_RAPID:
+            typeName = "区間快速";
+            simpleName = "区快";
+            color = "00FF0000";
+            break;
+        case NEW_RAPID:
+            typeName = "新快速";
+            simpleName = "新快";
+            color = "00FF0000";
+            break;
+        case SPECIAL_RAPID:
+            typeName = "特別快速";
+            simpleName = "特快";
+            color = "00FF0000";
+            break;
+        case HOME_LINER:
+            typeName = "ホームライナー";
+            simpleName = "ＨＬ";
+            color = "00FF0000";
+            break;
+        case SEMI_EXPRESS:
+            typeName = "準急";
+            simpleName = "準急";
+            color = "11EE1100";
+            isBold = 1;
+            break;
+        case EXPRESS:
+            typeName = "急行";
+            simpleName = "急行";
+            color = "0000FF00";
+            isBold = 1;
+            break;
+        case LIMITED_EXPRESS:
+            typeName = "特急";
+            simpleName = "特急";
+            color = "000000FF";
+            isBold = 1;
+            break;
+        case NOZOMI_SUPER_EXPRESS:
+            typeName = "のぞみ型新幹線";
+            simpleName = "幹";
+            color = "000000FF";
+            isBold = 1;
+            break;
+        case HIKARI_SUPER_EXPRESS:
+            typeName = "ひかり型新幹線";
+            simpleName = "幹";
+            color = "0000FF00";
+            isBold = 1;
+            break;
+        case KODAMA_SUPER_EXPRESS:
+            typeName = "こだま型新幹線";
+            simpleName = "幹";
+            color = "00400000";
+            isBold = 1;
+            break;
+        case BUS:
+            typeName = "バス";
+            simpleName = "バス";
+            color = "00000000";
+            stopMark = true;
+            break;
+        case RAPID_EXPRESS:
+            typeName = "快速急行";
+            simpleName = "快急";
+            color = "0000FF00";
+            isBold = 1;
+            break;
+        case RAPID_LIMITED_EXPRESS:
+            typeName = "快速特急";
+            simpleName = "快特";
+            color = "008080FF";
+            isBold = 1;
+            break;
+        case AIRPORT_EXPRESS:
+            typeName = "エアポート急行";
+            simpleName = "エ急";
+            color = "0000FF00";
+            isBold = 1;
+            break;
+        }
+
+        return "Ressyasyubetsu." + LINE_SEPARATOR
+            + "Syubetsumei=" + typeName + LINE_SEPARATOR
+            + (simpleName.isEmpty() ? "" : "Ryakusyou=" + simpleName
+               + LINE_SEPARATOR)
+            + "JikokuhyouMojiColor=" + color + LINE_SEPARATOR
+            + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
+            + "DiagramSenColor=" + color + LINE_SEPARATOR
+            + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
+            + "DiagramSenIsBold=" + isBold + LINE_SEPARATOR
+            + (stopMark ? "" : "StopMarkDrawType=EStopMarkDrawType_Nothing"
+               + LINE_SEPARATOR)
+            + "." + LINE_SEPARATOR;
     }
 }

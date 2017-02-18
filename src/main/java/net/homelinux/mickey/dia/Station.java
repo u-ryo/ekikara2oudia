@@ -9,6 +9,11 @@ class Station {
         this.name = name;
     }
 
+    Station(String name, Type type) {
+        this.name = name;
+        this.type = type;
+    }
+
     void setType(Type type) {
         this.type = type;
     }
@@ -21,7 +26,18 @@ class Station {
         return name;
     }
 
+    @Override
     public String toString() {
         return "[Name: " + name + ", Type: " + type + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Station && obj.toString().equals(toString());
     }
 }

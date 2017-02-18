@@ -18,10 +18,15 @@ class TrainName {
         ANY_SEMI_EXPRESS = "準急]", ANY_EXPRESS = "急行]",
         ANY_LIMITED_EXPRESS = "特急]", ANY_RAPID_EXPRESS = "快急]",
         ANY_RAPID_LIMITED_EXPRESS = "快特]";
-    private static final Pattern NUMBER_PATTERN = Pattern.compile(NUMBER_RE);
+    private static final Pattern NUMBER_PATTERN = Pattern.compile(NUMBER_RE),
+        LOCAL_SUPER_EXPRESS =
+        Pattern.compile("こだま|つばめ|つるぎ|あさま|たにがわ|なすの"),
+        MEDIUM_SUPER_EXPRESS =
+        Pattern.compile("ひかり|さくら|はくたか|やまびこ|はやて");
 
     static void setName(Train train, String name) {
-        name = name.replaceFirst("\\(料金不要\\)", "");
+        name = name.replaceFirst("\\(料金不要\\)", EMPTY_STRING)
+            .replaceAll(" ", EMPTY_STRING);
         if (name.startsWith(RAPID) || name.startsWith(SEMI_RAPID)
             || name.startsWith(COMMUTER_EXPRESS)) {
             train.setType(Train.Type.RAPID);
@@ -43,7 +48,13 @@ class TrainName {
                    || name.startsWith(SLEEPING_EXPRESS)) {
             train.setType(Train.Type.EXPRESS);
         } else if (name.startsWith(SUPER_EXPRESS)) {
-            train.setType(Train.Type.SUPER_EXPRESS);
+            if (LOCAL_SUPER_EXPRESS.matcher(name).find()) {
+                train.setType(Train.Type.KODAMA_SUPER_EXPRESS);
+            } else if (MEDIUM_SUPER_EXPRESS.matcher(name).find()) {
+                train.setType(Train.Type.HIKARI_SUPER_EXPRESS);
+            } else {
+                train.setType(Train.Type.NOZOMI_SUPER_EXPRESS);
+            }
         } else if (name.startsWith(BUS)) {
             train.setType(Train.Type.BUS);
         } else if (name.startsWith(RAPID_EXPRESS)
