@@ -225,13 +225,13 @@ public class OuDiaFormatter implements Formatter {
         String simpleName = "";
         String color = "";
         int isBold = 0;
-        boolean stopMark = false;
+        boolean stopMark = true;
 
         switch (type) {
         case LOCAL:
             typeName = "普通";
             color = "00000000";
-            stopMark = true;
+            stopMark = false;
             break;
         case RAPID:
             typeName = "快速";
@@ -298,7 +298,7 @@ public class OuDiaFormatter implements Formatter {
             typeName = "バス";
             simpleName = "バス";
             color = "00000000";
-            stopMark = true;
+            stopMark = false;
             break;
         case RAPID_EXPRESS:
             typeName = "快速急行";
@@ -322,15 +322,15 @@ public class OuDiaFormatter implements Formatter {
 
         return "Ressyasyubetsu." + LINE_SEPARATOR
             + "Syubetsumei=" + typeName + LINE_SEPARATOR
-            + (simpleName.isEmpty() ? "" : "Ryakusyou=" + simpleName
-               + LINE_SEPARATOR)
+            + (simpleName.isEmpty() ? ""
+               : "Ryakusyou=" + simpleName + LINE_SEPARATOR)
             + "JikokuhyouMojiColor=" + color + LINE_SEPARATOR
             + "JikokuhyouFontIndex=0" + LINE_SEPARATOR
             + "DiagramSenColor=" + color + LINE_SEPARATOR
             + "DiagramSenStyle=SenStyle_Jissen" + LINE_SEPARATOR
             + "DiagramSenIsBold=" + isBold + LINE_SEPARATOR
-            + (stopMark ? "" : "StopMarkDrawType=EStopMarkDrawType_Nothing"
-               + LINE_SEPARATOR)
+            + (stopMark ? "StopMarkDrawType=EStopMarkDrawType_DrawOnStop"
+               : "StopMarkDrawType=EStopMarkDrawType_Nothing") + LINE_SEPARATOR
             + "." + LINE_SEPARATOR;
     }
 }

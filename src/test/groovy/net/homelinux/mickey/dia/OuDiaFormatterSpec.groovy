@@ -130,27 +130,42 @@ JikokuhyouFontIndex=0
 DiagramSenColor=00FF0000
 DiagramSenStyle=SenStyle_Jissen
 DiagramSenIsBold=0
+StopMarkDrawType=EStopMarkDrawType_DrawOnStop
+.
+'''
+    formatter.getTrainTypeString(Train.Type.LOCAL).replaceAll('\r\n', '\n') == '''\
+Ressyasyubetsu.
+Syubetsumei=普通
+JikokuhyouMojiColor=00000000
+JikokuhyouFontIndex=0
+DiagramSenColor=00000000
+DiagramSenStyle=SenStyle_Jissen
+DiagramSenIsBold=0
 StopMarkDrawType=EStopMarkDrawType_Nothing
 .
 '''
-    formatter.getTrainTypeString(Train.Type.LOCAL).replaceAll('\r\n', '\n') == '''\
+    formatter.getTrainTypeString(Train.Type.BUS).replaceAll('\r\n', '\n') == '''\
 Ressyasyubetsu.
-Syubetsumei=普通
+Syubetsumei=バス
+Ryakusyou=バス
 JikokuhyouMojiColor=00000000
 JikokuhyouFontIndex=0
 DiagramSenColor=00000000
 DiagramSenStyle=SenStyle_Jissen
 DiagramSenIsBold=0
+StopMarkDrawType=EStopMarkDrawType_Nothing
 .
 '''
-    formatter.getTrainTypeString(Train.Type.LOCAL).replaceAll('\r\n', '\n') == '''\
+    formatter.getTrainTypeString(Train.Type.KODAMA_SUPER_EXPRESS).replaceAll('\r\n', '\n') == '''\
 Ressyasyubetsu.
-Syubetsumei=普通
-JikokuhyouMojiColor=00000000
+Syubetsumei=こだま型新幹線
+Ryakusyou=幹
+JikokuhyouMojiColor=00400000
 JikokuhyouFontIndex=0
-DiagramSenColor=00000000
+DiagramSenColor=00400000
 DiagramSenStyle=SenStyle_Jissen
-DiagramSenIsBold=0
+DiagramSenIsBold=1
+StopMarkDrawType=EStopMarkDrawType_DrawOnStop
 .
 '''
   }
