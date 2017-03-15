@@ -26,6 +26,16 @@ class Ekikara2OuDiaSpec extends Specification {
     ekikara2OuDia.rule == null
   }
 
+  def "常磐線各駅停車でもruleが設定されない"() {
+    setup:
+    ekikara2OuDia.title =
+      '[ＪＲ]常磐線「各駅停車」 (綾瀬〜取手) ［路線時刻表］ 土曜日 更新日:2017/3/6'
+    ekikara2OuDia.setRuleByTitle()
+
+    expect:
+    ekikara2OuDia.rule == null
+  }
+
   def "checkRulesで下り偕楽園の設定"() {
     setup:
     ekikara2OuDia.direction = Direction.DOWN

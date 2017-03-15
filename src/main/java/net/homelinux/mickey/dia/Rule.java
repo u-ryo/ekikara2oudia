@@ -1,7 +1,7 @@
 package net.homelinux.mickey.dia;
 
 public enum Rule {
-    KAIRAKUEN("常磐線", "偕楽園");
+    KAIRAKUEN("常磐線 (上野〜仙台)", "偕楽園");
 
     private String lineName;
     private String stationName;
