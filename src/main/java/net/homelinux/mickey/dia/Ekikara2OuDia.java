@@ -349,7 +349,7 @@ public class Ekikara2OuDia {
     }
 
     public void adjust() {
-        if (rule == null) {
+        if (rule == null || rule.getIndex() == null) {
             return;
         }
         int index = allStations.size() - rule.getIndex();
@@ -421,7 +421,7 @@ public class Ekikara2OuDia {
         for (String url : sourceMap.keySet()) {
             ekikara2OuDia.process(sourceMap.get(url));
         }
-        if (ekikara2OuDia.rule != null) {
+        if (ekikara2OuDia.rule != null && ekikara2OuDia.rule.getIndex() != null) {
             ekikara2OuDia.adjust();
         }
         Formatter formatter =

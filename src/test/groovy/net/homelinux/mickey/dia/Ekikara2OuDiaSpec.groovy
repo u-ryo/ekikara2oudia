@@ -150,6 +150,92 @@ class Ekikara2OuDiaSpec extends Specification {
       [null,'passage'], [null,'passage']]
   }
 
+  def "常磐線・偕楽園無し・下りが先の時のadjustで上り列車に偕楽園通過の付加が無いこと"() {
+    setup:
+    ekikara2OuDia.rule = Rule.KAIRAKUEN
+    ekikara2OuDia.rule.setIndex(null)
+    ekikara2OuDia.rule.setDirection(null)
+    ekikara2OuDia.allStations = [
+      new Station('友部'), new Station('内原'), new Station('赤塚'),
+      new Station('水戸'), new Station('勝田')
+    ]
+    ekikara2OuDia.upTrains = [
+      new Train('364M'), new Train('2068M'), new Train('1006M') ]
+    ekikara2OuDia.upTrains[0].time = [
+      [null,'0914'] as String[], ['0920','0930'] as String[],
+      [null,'0935'] as String[], [null,'0940'] as String[],
+      ['0944','0944'] as String[]]
+    ekikara2OuDia.upTrains[1].type = Train.Type.LIMITED_EXPRESS
+    ekikara2OuDia.upTrains[1].name = 'ときわ68号'
+    ekikara2OuDia.upTrains[1].time = [
+      [null,'0904'] as String[], ['0910','0911'] as String[],
+      [null,'passage'] as String[], [null,'passage'] as String[],
+      ['0921','0921'] as String[]]
+    ekikara2OuDia.upTrains[2].type = Train.Type.LIMITED_EXPRESS
+    ekikara2OuDia.upTrains[2].name = 'ひたち6号'
+    ekikara2OuDia.upTrains[2].time = [
+      ['0920','0921'] as String[], ['0926','0927'] as String[],
+      [null,'passage'] as String[], [null,'passage'] as String[],
+      [null,'passage'] as String[]]
+    ekikara2OuDia.adjust()
+
+    expect:
+    ekikara2OuDia.upTrains[0].time == [
+      [null,'0914'], ['0920','0930'], [null,'0935'],
+      [null,'0940'], ['0944','0944']]
+    ekikara2OuDia.upTrains[1].time == [
+      [null,'0904'], ['0910','0911'], [null,'passage'],
+      [null,'passage'], ['0921','0921']]
+    ekikara2OuDia.upTrains[2].time == [
+      ['0920','0921'], ['0926','0927'], [null,'passage'],
+      [null,'passage'], [null,'passage']]
+  }
+
+  def "常磐線・偕楽園無し・上りが先(reverse)の時のadjustで上り列車に偕楽園通過の付加が無いこと"() {
+    setup:
+    ekikara2OuDia.rule = Rule.KAIRAKUEN
+    ekikara2OuDia.rule.setIndex(null)
+    ekikara2OuDia.rule.setDirection(null)
+    ekikara2OuDia.allStations = [
+      new Station('勝田'), new Station('水戸'), new Station('赤塚'),
+      new Station('内原'), new Station('友部')
+    ]
+    ekikara2OuDia.downTrains = [
+      new Train('364M'), new Train('2068M'), new Train('1006M') ]
+    ekikara2OuDia.downTrains[0].time = [
+      [null,'0914'] as String[], ['0920','0930'] as String[],
+      [null,'0935'] as String[], [null,'0940'] as String[],
+      ['0944','0944'] as String[]]
+    ekikara2OuDia.downTrains[1].type = Train.Type.LIMITED_EXPRESS
+    ekikara2OuDia.downTrains[1].name = 'ときわ68号'
+    ekikara2OuDia.downTrains[1].time = [
+      [null,'0904'] as String[], ['0910','0911'] as String[],
+      [null,'passage'] as String[], [null,'passage'] as String[],
+      ['0921','0921'] as String[]]
+    ekikara2OuDia.downTrains[2].type = Train.Type.LIMITED_EXPRESS
+    ekikara2OuDia.downTrains[2].name = 'ひたち6号'
+    ekikara2OuDia.downTrains[2].time = [
+      ['0920','0921'] as String[], ['0926','0927'] as String[],
+      [null,'passage'] as String[], [null,'passage'] as String[],
+      [null,'passage'] as String[]]
+    ekikara2OuDia.adjust()
+
+    expect:
+    ekikara2OuDia.allStations == [
+      new Station('勝田'), new Station('水戸'),
+      new Station('赤塚'), new Station('内原'), new Station('友部')
+    ]
+    ekikara2OuDia.downTrains[0].time == [
+      [null,'0914'], ['0920','0930'], [null,'0935'],
+      [null,'0940'], ['0944','0944']]
+    ekikara2OuDia.downTrains[1].time == [
+      [null,'0904'], ['0910','0911'], [null,'passage'],
+      [null,'passage'], ['0921','0921']]
+    ekikara2OuDia.downTrains[2].time == [
+      ['0920','0921'], ['0926','0927'], [null,'passage'],
+      [null,'passage'], [null,'passage']]
+  }
+
   def "偕楽園のある常磐線下りでのparseStationsのtest"() {
     setup:
     ekikara2OuDia.direction = Direction.DOWN
